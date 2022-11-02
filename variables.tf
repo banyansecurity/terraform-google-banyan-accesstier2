@@ -191,5 +191,5 @@ variable "datadog_api_key" {
 variable "netagent-version" {
   type        = string
   description = "Specific version of netagent"
-  default     = "1.43.0"
+  default     = null
 }
