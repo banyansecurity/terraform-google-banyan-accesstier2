@@ -114,10 +114,6 @@ resource "google_compute_instance_template" "accesstier_template" {
     }
   }
 
-  metadata = {
-    shutdown-script = file("${path.module}/scripts/shutdown.sh")
-  }
-
   metadata_startup_script = join("", concat([
     "#!/bin/bash -ex\n",
     # increase file handle limits
