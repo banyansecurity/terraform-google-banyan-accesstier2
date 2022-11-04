@@ -36,13 +36,13 @@ variable "tunnel_port" {
   default     = null
 }
 
-variable "tunnel_private_domain" {
-  description = ""
+variable "tunnel_private_domains" {
+  description = "Any internal domains that can only be resolved on your internal network’s private DNS"
   default     = null
 }
 
 variable "tunnel_cidrs" {
-  description = ""
+  description = "Backend CIDR Ranges that correspond to the IP addresses in your private network(s)"
   default     = null
 }
 
