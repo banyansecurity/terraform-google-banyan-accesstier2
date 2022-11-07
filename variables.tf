@@ -104,7 +104,7 @@ variable "infra_maximum_session_timeout" {
 variable "netagent_version" {
   type        = string
   description = "Override to use a specific version of netagent (e.g. `1.48.0`)"
-  default     = ""
+  default     = null
 }
 
 // GCP specific variables
