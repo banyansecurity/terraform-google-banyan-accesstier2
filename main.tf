@@ -34,7 +34,7 @@ resource "google_compute_forwarding_rule" "accesstier" {
   load_balancing_scheme = "EXTERNAL"
   ports                 = [80, 443, 8443]
   backend_service       = google_compute_region_backend_service.accesstier.id
-  ip_address            = google_compute_address.backend_service_ip_address.address
+  ip_address            = google_compute_address.external.address
 }
 
 
@@ -190,7 +190,7 @@ data "google_compute_subnetwork" "accesstier_subnet" {
   region = var.region
 }
 
-resource "google_compute_address" "backend_service_ip_address" {
+resource "google_compute_address" "external" {
   name         = "${var.name}-ip-address-at-backend-svc"
   region       = var.region
   address_type = "EXTERNAL"
