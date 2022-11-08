@@ -14,7 +14,7 @@ provider "banyan" {
 
 resource "banyan_accesstier" "accesstier" {
   name                    = var.name
-  address                 = google_compute_address.backend_service_ip_address.address
+  address                 = google_compute_address.external.address
   cluster                 = var.cluster
   disable_snat            = var.disable_snat
   src_nat_cidr_range      = var.src_nat_cidr_range
