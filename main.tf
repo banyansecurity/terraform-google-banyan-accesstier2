@@ -32,7 +32,7 @@ resource "google_compute_forwarding_rule" "accesstier" {
   region                = var.region
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
-  ports                 = [80, 443, 8443]
+  ports                 = [80, 443, 8443, 9998, 51820]
   backend_service       = google_compute_region_backend_service.accesstier.id
   ip_address            = google_compute_address.external.address
 }
@@ -93,7 +93,7 @@ resource "google_compute_instance_template" "accesstier_template" {
   name_prefix = "${var.name}-at-template-"
   description = "This template is used for access tiers"
 
-  tags         = setunion(google_compute_firewall.accesstier_ports.target_tags, google_compute_firewall.accesstier_ssh.target_tags, google_compute_firewall.healthcheck.target_tags, var.tags)
+  tags         = setunion(google_compute_firewall.accesstier_ports.target_tags, google_compute_firewall.accesstier_ssh.target_tags, google_compute_firewall.healthcheck.target_tags, google_compute_firewall.accesstier_ports_tunnel.target_tags , var.tags)
   region       = var.region
   machine_type = var.machine_type
 
@@ -158,8 +158,19 @@ resource "google_compute_firewall" "accesstier_ports" {
   target_tags   = ["${var.name}-accesstier-ports"]
   source_ranges = ["0.0.0.0/0"]
   allow {
-    protocol = "all"
-#    ports    = ["80", "443", "8443", "9998"]
+    protocol = "tcp"
+    ports    = ["80", "443", "8443"]
+  }
+}
+
+resource "google_compute_firewall" "accesstier_ports_tunnel" {
+  name          = "${var.name}-accesstier-ports-tunnel"
+  network       = data.google_compute_network.accesstier_network.name
+  target_tags   = ["${var.name}-accesstier-ports-tunnel"]
+  source_ranges = ["0.0.0.0/0"]
+  allow {
+    protocol = "udp"
+    ports    = ["51820"]
   }
 }
 
