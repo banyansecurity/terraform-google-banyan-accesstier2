@@ -128,6 +128,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max\n",
     # install dogstatsd (if requested)
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v\n" : "",
+    "netplan set ethernets.ens4.addresses=[${google_compute_address.external.address}/32] && netplan apply\n", // needed for direct server response, lb doesn't change ip address to the vm's so netagent ignores it
     # install prerequisites and Banyan netagent
     "curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add -\n",
     "apt-add-repository \"deb https://www-stage.bnntest.com/onramp/deb-repo xenial main\"\n",
