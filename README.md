@@ -1,7 +1,7 @@
 Banyan Google Cloud Access Tier 2 Module
 ======================================
 
-This module creates an auto-scaling instance group and a TCP load balancer in Google Cloud (GCP) for a Banyan Access Tier. A network load balancer forwards traffic to the instance group which, when added to the proper tags and banyan zero trust policies, allows for connections to internal services, or to the network via service tunnel. 
+This module creates an auto-scaling instance group and a TCP load balancer in Google Cloud (GCP) for a Banyan Access Tier. A network load balancer forwards traffic to the instance group which, when added to the proper tags and banyan zero trust policies, allows for connections to internal services or to the network via service tunnel. 
 
 This module will create an access tier definition in the Banyan API, and an `access_tier` scoped API key. It will populate the launch configuration of all instances in the auto-scaling group with a short script to download the latest version of the Banyan NetAgent (or a pinned version if set), install it as a service, and launch the netagent with the API key and access tier configuration name for your Banyan organization.
 
@@ -21,32 +21,35 @@ provider "google" {
 }
 
 module "gcp_accesstier" {
-  source           = "github.com/banyansecurity/terraform-accesstier2-gcp"
-  name             = "example"
-  api_key          = var.api_key
-  banyan_host      = var.banyan_host
-  project          = "example-project"
-  region           = "us-west1"
-  network          = "us-west1"
-  subnetwork       = "us-west1-external"
-  tags             = ["allow-accesstier"]
-  minimum_num_of_instances = 1
-  tunnel_cidrs = ["10.10.0.0/24"]
-  statsd_address = "10.10.0.3"
-  forward_trust_cookie = true
-  enable_hsts = true
+  source                   = "github.com/banyansecurity/terraform-accesstier2-gcp"
+  name                     = "example"
+  banyan_host              = var.banyan_host
+  project                  = "example-project"
+  region                   = "us-west1"
+  network                  = "us-west1"
+  subnetwork               = "us-west1-external"
+  tags                     = ["allow-accesstier"]
+  tunnel_cidrs             = ["10.10.0.0/24"]
 }
 
 ```
 
-## Example with Service Tunnel
+## Example Stack with Service Tunnel and Wildcard DNS Record
 
 ```terraform
+provider "banyan" {
+  api_key = var.api_key
+  host    = var.banyan_host
+}
+
+provider "google" {
+  project = local.project_id
+  region  = local.region
+}
 
 module "gcp_accesstier" {
   source                   = "github.com/banyansecurity/terraform-accesstier2-gcp"
   name                     = "example"
-  api_key                  = var.api_key
   banyan_host              = var.banyan_host
   project                  = "example-project"
   region                   = "us-west1"
@@ -59,17 +62,25 @@ module "gcp_accesstier" {
 resource "banyan_service_tunnel" "example" {
   name        = "example-anyone-high"
   description = "tunnel allowing anyone with a high trust level"
-  access_tier = banyan_accesstier.example.name
+  access_tier = module.gcp_accesstier.name
   policy      = banyan_policy_infra.anyone-high.id
 }
 
 resource "banyan_policy_infra" "anyone-high" {
-  name        = "allow anyone"
-  description = "${banyan_accesstier.example.name} allow"
+  name        = "allow-anyone"
+  description = "${module.gcp_accesstier.name} allow"
   access {
     roles       = ["ANY"]
     trust_level = "High"
   }
+}
+
+resource "google_dns_record_set" "frontend" {
+  name = "*.${module.gcp_accesstier.name}.mycompany.com"
+  type = "A"
+  ttl  = 300
+  managed_zone = google_dns_managed_zone.prod.name
+  rrdatas = module.gcp_accesstier.address
 }
 ```
 
@@ -128,7 +139,6 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_api_key"></a> [api\_key](#input\_api\_key) | An admin scoped API key to use for authentication to Banyan | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name to use when registering this Access Tier with the Banyan command center | `string` | n/a | yes |
 | <a name="input_network"></a> [network](#input\_network) | Name of the network the Access Tier will belong to | `string` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | GCloud project name where AccessTier is deployed | `string` | n/a | yes |
@@ -150,7 +160,7 @@ No modules.
 | <a name="input_log_num"></a> [log\_num](#input\_log\_num) | For file logs: Number of files to use for log rotation | `number` | `null` | no |
 | <a name="input_log_size"></a> [log\_size](#input\_log\_size) | For file logs: Size of each file for log rotation | `number` | `null` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | Google compute instance types | `string` | `"e2-standard-4"` | no |
-| <a name="input_management_cidrs"></a> [management\_cidrs](#input\_management\_cidrs) | CIDR blocks to allow SSH connections from | `list(string)` | <pre>[<br>  "0.0.0.0/0"<br>]</pre> | no |
+| <a name="input_management_cidrs"></a> [management\_cidrs](#input\_management\_cidrs) | CIDR blocks to allow SSH connections from. Default is the VPC CIDR range | `list(string)` | `[]` | no |
 | <a name="input_minimum_num_of_instances"></a> [minimum\_num\_of\_instances](#input\_minimum\_num\_of\_instances) | The minimum number of instances that should be running | `number` | `2` | no |
 | <a name="input_netagent-version"></a> [netagent-version](#input\_netagent-version) | Specific version of netagent | `string` | `null` | no |
 | <a name="input_netagent_version"></a> [netagent\_version](#input\_netagent\_version) | Override to use a specific version of netagent (e.g. `1.49.1`). Omit for the latest version available | `string` | `null` | no |

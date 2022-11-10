@@ -93,7 +93,7 @@ resource "google_compute_instance_template" "accesstier_template" {
   name_prefix = "${var.name}-at-template-"
   description = "This template is used for access tiers"
 
-  tags         = setunion(google_compute_firewall.accesstier_ports.target_tags, google_compute_firewall.accesstier_ssh.target_tags, google_compute_firewall.healthcheck.target_tags, google_compute_firewall.accesstier_ports_tunnel.target_tags , var.tags)
+  tags         = setunion(google_compute_firewall.accesstier_ports.target_tags, google_compute_firewall.accesstier_ssh.target_tags, google_compute_firewall.healthcheck.target_tags, google_compute_firewall.accesstier_ports_tunnel.target_tags, var.tags)
   region       = var.region
   machine_type = var.machine_type
 
