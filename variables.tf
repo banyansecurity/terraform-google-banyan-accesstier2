@@ -1,12 +1,7 @@
 // Common Banyan Variables followed by cloud specific variables
 variable "name" {
   type        = string
-  description = "Name to use when registering this Access Tier with the console"
-}
-
-variable "api_key" {
-  type        = string
-  description = "An admin scoped API key to use for authentication to Banyan"
+  description = "Name to use when registering this Access Tier with the Banyan command center"
 }
 
 variable "banyan_host" {
@@ -15,95 +10,105 @@ variable "banyan_host" {
   default     = "https://net.banyanops.com/"
 }
 
-variable "cluster" {
-  type        = string
-  description = "Name of an existing Shield cluster to register this Access Tier with"
-  default     = null
-}
-
-variable "disable_snat" {
-  description = "Disable Source Network Address Translation (SNAT)"
-  default     = false
-}
-
-variable "src_nat_cidr_range" {
-  description = ""
-  default     = null
-}
-
-variable "tunnel_port" {
-  description = "UDP for for end users to this access tier to utilize"
-  default     = null
-}
-
-variable "tunnel_private_domains" {
-  description = "Any internal domains that can only be resolved on your internal network’s private DNS"
-  default     = null
-}
-
-variable "tunnel_cidrs" {
-  description = "Backend CIDR Ranges that correspond to the IP addresses in your private network(s)"
-  default     = null
-}
-
-variable "console_log_level" {
-  description = "Controls verbosity of logs to console"
-  default     = null
-}
-
-variable "file_log_level" {
-  description = "Controls verbosity of logs to file"
-  default     = null
-}
-
-variable "file_log" {
-  description = "Whether to log to file or not"
-  default     = null
-}
-
-variable "log_num" {
-  description = "For file logs: Number of files to use for log rotation"
-  default     = null
-}
-
-variable "log_size" {
-  description = "For file logs: Size of each file for log rotation"
-  default     = null
-}
-
 variable "statsd_address" {
+  type        = string
   description = "Address to send statsd messages: “hostname:port” for UDP, “unix:///path/to/socket” for UDS"
   default     = null
 }
 
 variable "events_rate_limiting" {
+  type        = bool
   description = "Enable rate limiting of Access Event generation based on a credit-based rate control mechanism"
   default     = null
 }
 
 variable "event_key_rate_limiting" {
+  type        = bool
   description = "Enable rate limiting of Access Event generated based on a derived “key” value. Each key has a separate rate limiter, and events with the same key value are subjected to the rate limiter for that key"
   default     = null
 }
 
 variable "forward_trust_cookie" {
-  description = "Forward the Banyan trust cookie to upstream servers. This may be enabled if upstream servers wish to make use of information in the Banyan trust cookie."
+  type        = bool
+  description = "Forward the Banyan trust cookie to upstream servers. This may be enabled if upstream servers wish to make use of information in the Banyan trust cookie"
   default     = null
 }
 
 variable "enable_hsts" {
+  type        = bool
   description = "If enabled, Banyan will send the HTTP Strict-Transport-Security response header"
-  default     = null
-}
-
-variable "infra_maximum_session_timeout" {
-  description = ""
   default     = null
 }
 
 variable "netagent_version" {
   type        = string
-  description = "Override to use a specific version of netagent (e.g. `1.48.0`)"
+  description = "Override to use a specific version of netagent (e.g. `1.49.1`). Omit for the latest version available"
+  default     = null
+}
+
+variable "disable_snat" {
+  type        = bool
+  description = "Disable Source Network Address Translation (SNAT)"
+  default     = false
+}
+
+variable "src_nat_cidr_range" {
+  type        = string
+  description = "CIDR range which source Network Address Translation (SNAT) will be disabled for"
+  default     = null
+}
+
+variable "tunnel_port" {
+  type        = number
+  description = "UDP port for end users to this access tier to utilize when using service tunnel"
+  default     = null
+}
+
+variable "tunnel_private_domains" {
+  type        = list(string)
+  description = "Any internal domains that can only be resolved on your internal network’s private DNS"
+  default     = null
+}
+
+variable "tunnel_cidrs" {
+  type        = list(string)
+  description = "Backend CIDR Ranges that correspond to the IP addresses in your private network(s)"
+  default     = null
+}
+
+variable "console_log_level" {
+  type        = string
+  description = "Controls verbosity of logs to console. Must be one of \"ERR\", \"WARN\", \"INFO\", \"DEBUG\""
+  default     = null
+}
+
+variable "file_log_level" {
+  type        = string
+  description = "Controls verbosity of logs to file. Must be one of \"ERR\", \"WARN\", \"INFO\", \"DEBUG\""
+  default     = null
+}
+
+variable "file_log" {
+  type        = bool
+  description = "Whether to log to file or not"
+  default     = null
+}
+
+variable "log_num" {
+  type        = number
+  description = "For file logs: Number of files to use for log rotation"
+  default     = null
+}
+
+variable "log_size" {
+  type        = number
+  description = "For file logs: Size of each file for log rotation"
+  default     = null
+}
+
+variable "cluster" {
+  type        = string
+  description = "Name of an existing Shield cluster to register this Access Tier with. This value is set automatically if omitted from the configuration"
   default     = null
 }
 
@@ -154,8 +159,8 @@ variable "minimum_num_of_instances" {
 
 variable "management_cidrs" {
   type        = list(string)
-  description = "CIDR blocks to allow SSH connections from"
-  default     = ["0.0.0.0/0"]
+  description = "CIDR blocks to allow SSH connections from. Default is the VPC CIDR range"
+  default     = []
 }
 
 variable "service_source_ip_ranges" {
