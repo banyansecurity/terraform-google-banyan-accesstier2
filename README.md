@@ -21,7 +21,7 @@ provider "google" {
 }
 
 module "gcp_accesstier" {
-  source                   = "github.com/banyansecurity/terraform-accesstier2-gcp"
+  source                   = "banyansecurity/banyan-accesstier2/google"
   name                     = "example"
   banyan_host              = var.banyan_host
   project                  = "example-project"
@@ -48,7 +48,7 @@ provider "google" {
 }
 
 module "gcp_accesstier" {
-  source                   = "github.com/banyansecurity/terraform-accesstier2-gcp"
+  source                   = "banyansecurity/banyan-accesstier2/google"
   name                     = "example"
   banyan_host              = var.banyan_host
   project                  = "example-project"
