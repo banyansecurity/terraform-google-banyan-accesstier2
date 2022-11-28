@@ -7,14 +7,20 @@ This module will create an access tier definition in the Banyan API, and an `acc
 
 ### Why Access Tier 2?
 
-In order to ease the installation and configuration the access tier, the new netagent only needs an access tier scoped API key, Banyan API url, and the name of an access tier configuration in order to successfully connect. In this new module the access tier is defined in the Banyan API with the `banyan_accesstier` resource from the `banyan` terraform provider. The API key is created specifically for the access tier and added to the launch configuration
-
-This change brings substantial cohesion to the overall deployment of the access tier via Terraform and should lead to less configuration errors and deployment issues.
-
+In order to ease the installation and configuration of the access tier, the new netagent only needs an access tier scoped API key, Banyan API URL, and the name of an access tier configuration in order to successfully connect. In this new module the access tier is defined in the Banyan API with the `banyan_accesstier` resource from the `banyan` terraform provider. The API key is created specifically for the access tier and added to the launch configuration
 
 ## Usage
 
 ```terraform
+terraform {
+  required_providers {
+    banyan = {
+      source  = "banyansecurity/banyan"
+      version = "0.9.2"
+    }
+  }
+}
+
 provider "banyan" {
   api_key = "ADMIN-SCOPE-API-KEY"
 }
@@ -39,14 +45,33 @@ module "gcp_accesstier" {
 
 ## Example Stack with Service Tunnel and Wildcard DNS Record
 
+This example will configure the Banyan terraform provider and the Google Cloud provider. It will then create an access tier
+with a wildcard DNS record pointing to the address of the access tier. The access tier is configured with the tunnel CIDR of `10.10.0.0/16`.
+This corresponds to CIDR of the private network(s) (the entire VPC or individual subnets in Google Cloud). A service tunnel is configured
+to use this access tier, with a policy which allows any user with a `High` trust level access to the service tunnel.
+
+This policy could be narrowed down further using the `access.l4_access` attribute of the `banyan_policy_tunnel` resource.
+
+This is an effective replacement of a VPN tunnel, which leverages the device trust, continuous authorization
+and SAML capabilities of Banyan.
+
 ```terraform
+terraform {
+  required_providers {
+    banyan = {
+      source  = "banyansecurity/banyan"
+      version = "0.9.2"
+    }
+  }
+}
+
 provider "banyan" {
   api_key = "ADMIN-SCOPE-API-KEY"
 }
 
 provider "google" {
-  project = local.project_id
-  region  = local.region
+  project = "my-gcloud-project"
+  region  = "us-west1"
 }
 
 module "gcp_accesstier" {
@@ -57,7 +82,7 @@ module "gcp_accesstier" {
   network                  = "us-west1"
   subnetwork               = "us-west1-external"
   tags                     = ["allow-accesstier"]
-  tunnel_cidrs             = ["10.10.0.0/24"]
+  tunnel_cidrs             = ["10.10.0.0/16"]
 }
 
 resource "banyan_service_tunnel" "example" {
@@ -67,8 +92,8 @@ resource "banyan_service_tunnel" "example" {
   policy      = banyan_policy_infra.anyone-high.id
 }
 
-resource "banyan_policy_infra" "anyone-high" {
-  name        = "allow-anyone"
+resource "banyan_policy_tunnel" "anyone-high" {
+  name        = "allow-anyone-high-trust"
   description = "${module.gcp_accesstier.name} allow"
   access {
     roles       = ["ANY"]
@@ -91,9 +116,9 @@ Set `netagent_version` to the desired version number. This will ensure all insta
 
 ## Notes
 
-The default value for `management_cidr` leaves SSH closed to instances in the access tier.
+* The default value for `management_cidr` leaves SSH closed to instances in the access tier.
 
-The current recommended setup for  to use a banyan SSH service to SSH to a host inside of the private network, which in turn has SSH access to the instances in the auto-scaling group. This way no SSH service is exposed to the internet.
+* The current recommended setup for to use a banyan SSH service to SSH to a host inside the private network, which in turn has SSH access to the instances in the auto-scaling group. This way no SSH service is exposed to the internet.
 
 
 <!-- BEGIN_TF_DOCS -->
