@@ -15,6 +15,10 @@ This change brings substantial cohesion to the overall deployment of the access 
 ## Usage
 
 ```terraform
+provider "banyan" {
+  api_key = "ADMIN-SCOPE-API-KEY"
+}
+
 provider "google" {
   project = "my-gcloud-project"
   region  = "us-west1"
@@ -37,7 +41,7 @@ module "gcp_accesstier" {
 
 ```terraform
 provider "banyan" {
-  api_key = var.api_key
+  api_key = "ADMIN-SCOPE-API-KEY"
 }
 
 provider "google" {
