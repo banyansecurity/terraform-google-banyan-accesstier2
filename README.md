@@ -23,7 +23,6 @@ provider "google" {
 module "gcp_accesstier" {
   source                   = "banyansecurity/banyan-accesstier2/google"
   name                     = "example"
-  banyan_host              = var.banyan_host
   project                  = "example-project"
   region                   = "us-west1"
   network                  = "us-west1"
@@ -39,7 +38,6 @@ module "gcp_accesstier" {
 ```terraform
 provider "banyan" {
   api_key = var.api_key
-  host    = var.banyan_host
 }
 
 provider "google" {
@@ -50,7 +48,6 @@ provider "google" {
 module "gcp_accesstier" {
   source                   = "banyansecurity/banyan-accesstier2/google"
   name                     = "example"
-  banyan_host              = var.banyan_host
   project                  = "example-project"
   region                   = "us-west1"
   network                  = "us-west1"
