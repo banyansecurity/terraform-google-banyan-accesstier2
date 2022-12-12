@@ -130,7 +130,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v\n" : "",
     "netplan set ethernets.ens4.addresses=[${google_compute_address.external.address}/32] && netplan apply\n", // needed for direct server response, lb doesn't change ip address to the vm's so netagent ignores it
     # install prerequisites and Banyan netagent
-    "curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add -\n",
+    "for i in {1..3}; do curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add - && break || sleep 3; done \n",
     "apt-add-repository \"deb https://www-stage.bnntest.com/onramp/deb-repo xenial main\"\n",
     var.netagent_version != null ? "apt-get update && apt-get install -y banyan-netagent2=${var.netagent_version} \n" : "apt-get update && apt-get install -y banyan-netagent2 \n",
     # configure and start netagent
