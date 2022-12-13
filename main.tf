@@ -131,7 +131,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     "netplan set ethernets.ens4.addresses=[${google_compute_address.external.address}/32] && netplan apply\n", // needed for direct server response, lb doesn't change ip address to the vm's so netagent ignores it
     # install prerequisites and Banyan netagent
     "for i in {1..3}; do curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add - && break || sleep 3; done \n",
-    "apt-add-repository \"deb https://www-stage.bnntest.com/onramp/deb-repo xenial main\"\n",
+    "apt-add-repository \"deb https://www.banyanops.com/onramp/deb-repo xenial main\"\n",
     var.netagent_version != null ? "apt-get update && apt-get install -y banyan-netagent2=${var.netagent_version} \n" : "apt-get update && apt-get install -y banyan-netagent2 \n",
     # configure and start netagent
     "cd /opt/banyan-packages \n",
