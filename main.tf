@@ -114,26 +114,21 @@ resource "google_compute_instance_template" "accesstier_template" {
     }
   }
 
-  metadata_startup_script = join("", concat([
-    "#!/bin/bash -ex\n",
-    # increase file handle limits
-    "echo '* soft nofile 100000' >> /etc/security/limits.d/banyan.conf\n",
-    "echo '* hard nofile 100000' >> /etc/security/limits.d/banyan.conf\n",
-    "echo 'fs.file-max = 100000' >> /etc/sysctl.d/90-banyan.conf\n",
-    "sysctl -w fs.file-max=100000\n",
-    # increase conntrack hashtable limits
-    "echo 'options nf_conntrack hashsize=65536' >> /etc/modprobe.d/banyan.conf\n",
-    "modprobe nf_conntrack\n",
-    "echo '65536' > /proc/sys/net/netfilter/nf_conntrack_buckets\n",
-    "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max\n",
-    # install dogstatsd (if requested)
-    var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v\n" : "",
+  metadata_startup_script = join(" ", concat([
+    "#!/bin/bash -ex \n",
+    "echo '* soft nofile 100000' >> /etc/security/limits.d/banyan.conf \n",
+    "echo '* hard nofile 100000' >> /etc/security/limits.d/banyan.conf \n",
+    "echo 'fs.file-max = 100000' >> /etc/sysctl.d/90-banyan.conf \n",
+    "sysctl -w fs.file-max=100000 \n",
+    "echo 'options nf_conntrack hashsize=65536' >> /etc/modprobe.d/banyan.conf \n",
+    "modprobe nf_conntrack \n",
+    "echo '65536' > /proc/sys/net/netfilter/nf_conntrack_buckets \n",
+    "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max \n",
+    var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v \n" : "",
     "netplan set ethernets.ens4.addresses=[${google_compute_address.external.address}/32] && netplan apply\n", // needed for direct server response, lb doesn't change ip address to the vm's so netagent ignores it
-    # install prerequisites and Banyan netagent
     "for i in {1..3}; do curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add - && break || sleep 3; done \n",
-    "apt-add-repository \"deb https://www.banyanops.com/onramp/deb-repo xenial main\"\n",
+    var.staging_repo != null ? "apt-add-repository \"deb https://www-stage.bnntest.com/onramp/deb-repo xenial main\" \n" : "apt-add-repository \"deb https://www.banyanops.com/onramp/deb-repo xenial main\" \n",
     var.netagent_version != null ? "apt-get update && apt-get install -y banyan-netagent2=${var.netagent_version} \n" : "apt-get update && apt-get install -y banyan-netagent2 \n",
-    # configure and start netagent
     "cd /opt/banyan-packages \n",
     "export ACCESS_TIER_NAME=${var.name} \n",
     "export API_KEY_SECRET=${banyan_api_key.accesstier.secret} \n",
