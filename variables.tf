@@ -42,7 +42,7 @@ variable "enable_hsts" {
 
 variable "netagent_version" {
   type        = string
-  description = "Override to use a specific version of netagent (e.g. `1.49.1`). Omit for the latest version available"
+  description = "Override to use a specific version of netagent (e.g. `v2.2.0`). Omit for the latest version available. This version of the provider requires netagent v2.2.0 or higher"
   default     = null
 }
 
@@ -160,7 +160,7 @@ variable "minimum_num_of_instances" {
 variable "management_cidrs" {
   type        = list(string)
   description = "CIDR blocks to allow SSH connections from. Default is the VPC CIDR range"
-  default     = []
+  default     = ["0.0.0.0/0"]
 }
 
 variable "service_source_ip_ranges" {
@@ -193,8 +193,8 @@ variable "datadog_api_key" {
   default     = null
 }
 
-variable "netagent-version" {
-  type        = string
-  description = "Specific version of netagent"
+variable "staging_repo" {
+  type = string
+  description = "If set, the staging deb repository will be used for the netagent install. For internal use only."
   default     = null
 }
