@@ -53,7 +53,7 @@ to use this access tier, with a policy which allows any user with a `High` trust
 This policy could be narrowed down further using the `access.l4_access` attribute of the `banyan_policy_tunnel` resource.
 
 This is an effective replacement of a VPN tunnel, which leverages the device trust, continuous authorization
-and SAML capabilities of Banyan.
+and SAML capabilities of Banyan. 
 
 ```terraform
 terraform {
