@@ -13,6 +13,7 @@ resource "google_compute_region_health_check" "backend_service_loadbalancer_heal
 }
 
 locals {
+  # The health check for external NLBs come from these 3 CIDRs.
   healthcheck_prober_ip_ranges = ["35.191.0.0/16", "209.85.152.0/22", "209.85.204.0/22"]
 }
 
