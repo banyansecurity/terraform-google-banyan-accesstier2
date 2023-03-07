@@ -125,7 +125,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     "modprobe nf_conntrack \n",
     "echo '65536' > /proc/sys/net/netfilter/nf_conntrack_buckets \n",
     "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max \n",
-    "# Setting up an iptables DNAT to fix google's UDP load balancers DSR implementation, which forward the traffic with an untranslated destination \n",
+    // Setting up an iptables DNAT to fix google's UDP load balancers DSR implementation, which forward the traffic with an untranslated destination
     "iptables -t nat -I PREROUTING -p udp --dport 51820 -j DNAT --to-destination  $(ip -j addr show dev ens4 | jq -r '.[0].addr_info | map(select(.family == \"inet\"))[0].local') \n",
     "iptables-save > /etc/iptables/rules.v4 \n",
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v \n" : "",
