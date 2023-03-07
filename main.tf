@@ -127,7 +127,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max \n",
     "# Setting up an iptables DNAT to fix google's UDP load balancers DSR implementation, which forward the traffic with an untranslated destination \n",
     "apt-get update \n",
-    "apt-get -y install iptables-persistent \n",
+    "export DEBIAN_FRONTEND=noninteractive; apt-get -y install iptables-persistent \n",
     "mkdir /etc/iptables \n",
     "iptables -t nat -I PREROUTING -p udp --dport 51820 -j DNAT --to-destination $(hostname -i) \n",
     "iptables-save > /etc/iptables/rules.v4 \n",
