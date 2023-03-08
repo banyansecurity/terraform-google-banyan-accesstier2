@@ -60,8 +60,8 @@ variable "src_nat_cidr_range" {
 
 variable "tunnel_port" {
   type        = number
-  description = "UDP port for end users to this access tier to utilize when using service tunnel"
-  default     = null
+  description = "UDP port for end users to this access tier to utilize when using wireguard service tunnel"
+  default     = 51820
 }
 
 variable "tunnel_private_domains" {
@@ -197,10 +197,4 @@ variable "staging_repo" {
   type        = string
   description = "If set, the staging deb repository will be used for the netagent install. For internal use only."
   default     = null
-}
-
-variable "wireguard_port" {
-  type        = number
-  description = "wireguard port used to set custom wireguard ports if needed"
-  default     = 51820
 }
