@@ -33,7 +33,7 @@ resource "google_compute_forwarding_rule" "accesstier" {
   region                = var.region
   ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
-  ports                 = [80, 443, 8443, 9998, 51820]
+  ports                 = [80, 443, 8443, 9998, var.tunnel_port]
   backend_service       = google_compute_region_backend_service.accesstier.id
   ip_address            = google_compute_address.external.address
 }
@@ -126,9 +126,10 @@ resource "google_compute_instance_template" "accesstier_template" {
     "echo '65536' > /proc/sys/net/netfilter/nf_conntrack_buckets \n",
     "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max \n",
     "# Setting up an iptables DNAT to fix google's UDP load balancers DSR implementation, which forward the traffic with an untranslated destination \n",
-    "mkdir /etc/iptables \n",
-    "iptables -t nat -I PREROUTING -p udp --dport 51820 -j DNAT --to-destination $(hostname -i) \n",
-    "iptables-save > /etc/iptables/rules.v4 \n",
+    "apt-get update \n",
+    "export DEBIAN_FRONTEND=noninteractive; apt-get -y install iptables-persistent && echo 'iptables persistent installed' \n",
+    "iptables -t nat -I PREROUTING -p udp --dport ${var.tunnel_port} -j DNAT --to-destination $(hostname -i) && echo 'DNAT rule applied' \n",
+    "echo 'installing Netagent' \n",
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v \n" : "",
     "curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add -\n",
     var.staging_repo != null ? "apt-add-repository \"deb https://www-stage.bnntest.com/onramp/deb-repo xenial main\" \n" : "apt-add-repository \"deb https://www.banyanops.com/onramp/deb-repo xenial main\" \n",
@@ -170,7 +171,7 @@ resource "google_compute_firewall" "accesstier_ports_tunnel" {
   source_ranges = ["0.0.0.0/0"]
   allow {
     protocol = "udp"
-    ports    = ["51820"]
+    ports    = [tostring(var.tunnel_port)]
   }
 }
 
