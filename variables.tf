@@ -194,7 +194,13 @@ variable "datadog_api_key" {
 }
 
 variable "staging_repo" {
-  type = string
+  type        = string
   description = "If set, the staging deb repository will be used for the netagent install. For internal use only."
   default     = null
+}
+
+variable "wireguard_port" {
+  type        = number
+  description = "wireguard port used to set custom wireguard ports if needed"
+  default     = 51820
 }
