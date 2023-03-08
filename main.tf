@@ -129,7 +129,6 @@ resource "google_compute_instance_template" "accesstier_template" {
     "apt-get update \n",
     "export DEBIAN_FRONTEND=noninteractive; apt-get -y install iptables-persistent && echo 'iptables persistent installed' \n",
     "iptables -t nat -I PREROUTING -p udp --dport 51820 -j DNAT --to-destination $(hostname -i) && echo 'DNAT rule applied' \n",
-    "iptables-save > /etc/iptables/rules.v4 \n",
     "echo 'installing Netagent' \n",
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v \n" : "",
     "curl https://www.banyanops.com/onramp/deb-repo/banyan.key | apt-key add -\n",
