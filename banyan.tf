@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    banyan = {
-      source  = "banyansecurity/banyan"
-      version = ">=1.1.0"
-    }
-  }
-}
 
 resource "banyan_accesstier" "accesstier" {
   name                    = var.name
