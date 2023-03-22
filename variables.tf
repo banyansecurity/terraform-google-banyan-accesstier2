@@ -198,3 +198,9 @@ variable "staging_repo" {
   description = "If set, the staging deb repository will be used for the netagent install. For internal use only."
   default     = null
 }
+
+variable "instance_eip" {
+  type        = bool
+  description = "If true, configuring an public IP on the instance. If using a NAT, set to false to avoid using a public IP on the instance"
+  default     = true
+}

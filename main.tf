@@ -108,12 +108,18 @@ resource "google_compute_instance_template" "accesstier_template" {
     disk_type    = "pd-ssd"
   }
 
-#  network_interface {
-#    subnetwork = data.google_compute_subnetwork.accesstier_subnet.name
-#    access_config {
-#      // Ephemeral public IP. Load balancer IP is static and used as access tier endpoint
-#    }
-#  }
+  network_interface {
+    subnetwork = data.google_compute_subnetwork.accesstier_subnet.name
+    # Set instance to use EIPs when not using NAT
+    dynamic "access_config" {
+      for_each = var.instance_eip ? [] : [1]
+      content {
+      }
+    }
+    access_config {
+      // Ephemeral public IP. Load balancer IP is static and used as access tier endpoint
+    }
+  }
 
   metadata_startup_script = join(" ", concat([
     "#!/bin/bash -ex \n",
