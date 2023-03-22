@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    banyan = {
+      source  = "banyansecurity/banyan"
+      version = ">=1.2.0"
+    }
+  }
+}
+
 resource "banyan_accesstier" "accesstier" {
   name                    = var.name
   address                 = google_compute_address.external.address
