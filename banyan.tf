@@ -1,4 +1,3 @@
-
 resource "banyan_accesstier" "accesstier" {
   name                    = var.name
   address                 = google_compute_address.external.address
