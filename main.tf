@@ -116,9 +116,6 @@ resource "google_compute_instance_template" "accesstier_template" {
       content {
       }
     }
-    access_config {
-      // Ephemeral public IP. Load balancer IP is static and used as access tier endpoint
-    }
   }
 
   metadata_startup_script = join(" ", concat([
