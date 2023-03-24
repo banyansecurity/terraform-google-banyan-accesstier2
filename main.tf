@@ -110,8 +110,11 @@ resource "google_compute_instance_template" "accesstier_template" {
 
   network_interface {
     subnetwork = data.google_compute_subnetwork.accesstier_subnet.name
-    access_config {
-      // Ephemeral public IP. Load balancer IP is static and used as access tier endpoint
+    # Set instance to use EIPs when not using NAT
+    dynamic "access_config" {
+      for_each = var.instance_eip == false ? [] : [""]
+      content {
+      }
     }
   }
 
@@ -125,9 +128,6 @@ resource "google_compute_instance_template" "accesstier_template" {
     "modprobe nf_conntrack \n",
     "echo '65536' > /proc/sys/net/netfilter/nf_conntrack_buckets \n",
     "echo '262144' > /proc/sys/net/netfilter/nf_conntrack_max \n",
-    "# Setting up an iptables DNAT to fix google's UDP load balancers DSR implementation, which forward the traffic with an untranslated destination \n",
-    "apt-get update \n",
-    "export DEBIAN_FRONTEND=noninteractive; apt-get -y install iptables-persistent && echo 'iptables persistent installed' \n",
     "iptables -t nat -I PREROUTING -p udp --dport ${var.tunnel_port} -j DNAT --to-destination $(hostname -i) && echo 'DNAT rule applied' \n",
     "echo 'installing Netagent' \n",
     var.datadog_api_key != null ? "curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh | DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=${var.datadog_api_key} DD_SITE=datadoghq.com bash -v \n" : "",
