@@ -112,7 +112,7 @@ resource "google_compute_instance_template" "accesstier_template" {
     subnetwork = data.google_compute_subnetwork.accesstier_subnet.name
     # Set instance to use EIPs when not using NAT
     dynamic "access_config" {
-      for_each = var.instance_eip  == false ? [] : [""]
+      for_each = var.instance_eip == false ? [] : [""]
       content {
       }
     }
