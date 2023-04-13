@@ -21,7 +21,7 @@ resource "google_compute_region_backend_service" "accesstier" {
   name                  = "${var.name}-at-backend-svc"
   health_checks         = [google_compute_region_health_check.backend_service_loadbalancer_health_check.id]
   load_balancing_scheme = "EXTERNAL"
-  protocol              = "TCP"
+  protocol              = "UNSPECIFIED"
   region                = var.region
   backend {
     group = google_compute_region_instance_group_manager.accesstier_rigm.instance_group
@@ -38,24 +38,13 @@ resource "google_compute_forwarding_rule" "accesstier" {
   ip_address            = google_compute_address.external.address
 }
 
-resource "google_compute_region_backend_service" "accesstier_udp" {
-  name                  = "${var.name}-udp-at-backend-svc"
-  health_checks         = [google_compute_region_health_check.backend_service_loadbalancer_health_check.id]
-  load_balancing_scheme = "EXTERNAL"
-  protocol              = "UDP"
-  region                = var.region
-  backend {
-    group = google_compute_region_instance_group_manager.accesstier_rigm.instance_group
-  }
-}
-
 resource "google_compute_forwarding_rule" "accesstier_udp" {
   name                  = "${var.name}-udp-at-backend-svc-forwarding-rule"
   region                = var.region
   ip_protocol           = "UDP"
   load_balancing_scheme = "EXTERNAL"
   ports                 = [var.tunnel_port]
-  backend_service       = google_compute_region_backend_service.accesstier_udp.id
+  backend_service       = google_compute_region_backend_service.accesstier.id
   ip_address            = google_compute_address.external.address
 }
 
