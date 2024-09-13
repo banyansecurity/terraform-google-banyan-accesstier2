@@ -28,6 +28,9 @@ resource "google_compute_region_backend_service" "accesstier" {
     balancing_mode = "CONNECTION"
   }
   connection_draining_timeout_sec = 0
+  iap {
+    enabled = false
+  }
 }
 
 resource "google_compute_forwarding_rule" "accesstier" {
