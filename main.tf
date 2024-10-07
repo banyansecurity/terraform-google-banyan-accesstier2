@@ -24,7 +24,12 @@ resource "google_compute_region_backend_service" "accesstier" {
   protocol              = "UNSPECIFIED"
   region                = var.region
   backend {
-    group = google_compute_region_instance_group_manager.accesstier_rigm.instance_group
+    group          = google_compute_region_instance_group_manager.accesstier_rigm.instance_group
+    balancing_mode = "CONNECTION"
+  }
+  connection_draining_timeout_sec = 0
+  iap {
+    enabled = false
   }
 }
 
